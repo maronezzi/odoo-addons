@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_concorrentes" model="ir.ui.view">
+            <field name="name">view.concorrentes</field>
+            <field name="model">concorrentes.concorrentes</field>
+            <field name="arch" type="xml">
+                <form string="Detalhe dos preços dos concorrentes">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="concorrentes_id" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="concorrentes_id" domain="[('supplier','=',True)]"/>
+                                <field name="vacina_id"/>
+                                <field name="data" eval="DateTime.today()"/>
+                            </group>
+                            <group>
+                                <field name="preco_apurado"/>
+                                <field name="preco_desconto"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_concorrentes_tree" model="ir.ui.view">
+            <field name="name">view.concorrentes.tree</field>
+            <field name="model">concorrentes.concorrentes</field>
+            <field name="arch" type="xml">
+                <tree string="Detalhe dos Preços">
+                    <field name="concorrentes_id"/>
+                    <field name="vacina_id"/>
+                    <field name="data"/>
+                    <field name="preco_apurado"/>
+                    <field name="preco_desconto"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_concorrentes_view" model="ir.actions.act_window">
+            <field name="name">Concorrentes</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">concorrentes.concorrentes</field>
+            <field name="view_mode">tree,form,pivot</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Detalhe dos preços dos concorrentes
+                </p>
+                <p>
+                    Clique para adicionar
+                </p>
+            </field>
+        </record>
+
+
+        <!-- This Menu Item will appear in the Upper bar, That's why It needs NO parent or action -->
+        <menuitem id="menu_concorrentes_root" name="Concorrentes" sequence="10"/>
+        <!-- This Menu Item Must have a parent -->
+        <menuitem id="menu_concorrentes_categ" name="Concorrentes" parent="menu_concorrentes_root" sequence="1"/>
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="menu_concorrentes__categ" name="Concorrentes" parent="menu_concorrentes_categ"
+                  action="action_concorrentes_view" sequence="1"/>
+
+
+    </data>
+</odoo>
