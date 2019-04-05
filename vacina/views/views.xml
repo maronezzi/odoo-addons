@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_vacina" model="ir.ui.view">
+            <field name="name">view.vacina</field>
+            <field name="model">vacina.vacina</field>
+            <field name="arch" type="xml">
+                <form string="Detalhe das Vacinas">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="cliente_id" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="cliente_id" domain="[('customer','=',True)]"/>
+                                <!--<field name="final_lot_id"/>-->
+                                <field name="local_aplicacao" widget="radio" options="{'horizontal': true}"/>
+                                <field name="vacina_id" attrs="{'invisible': [('local_aplicacao','!=', 'sevacine')], 'required': [('local_aplicacao','=', 'sevacine')]}">
+                                </field>
+                                <field name="vacina_ext" attrs="{'invisible': [('local_aplicacao','=', 'sevacine')], 'required': [('local_aplicacao','!=', 'sevacine')]}">
+                                </field>
+                                <field name="final_lot_id" options="{'no_create': True, 'no_open': True}"
+                                       attrs="{'invisible': [('local_aplicacao','!=', 'sevacine')], 'required': [('local_aplicacao','=', 'sevacine')]}"/>
+                                <field name="lote_ext" options="{'no_create': True, 'no_open': True}"
+                                       attrs="{'invisible': [('local_aplicacao','=', 'sevacine')], 'required': [('local_aplicacao','!=', 'sevacine')]}"/>
+                            </group>
+                            <group>
+                                <field name="aniversario"/>
+                                <field name="data_vacina"/>
+                                <field name="enfermeira_id" options="{'no_create': True, 'no_open': True}"
+                                       attrs="{'invisible': [('local_aplicacao','!=', 'sevacine')], 'required': [('local_aplicacao','=', 'sevacine')]}"/>
+                                <field name="enfermeira_ext" options="{'no_create': True, 'no_open': True}"
+                                       attrs="{'invisible': [('local_aplicacao','=', 'sevacine')]}"/>
+                                <field name="dose_aplicada"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_vacina_tree" model="ir.ui.view">
+            <field name="name">view.vacina.tree</field>
+            <field name="model">vacina.vacina</field>
+            <field name="arch" type="xml">
+                <tree default_order='data_vacina desc'>
+                    <field name="cliente_id"/>
+                    <field name="aniversario"/>
+                    <field name="vacina_id"/>
+                    <field name="final_lot_id"/>
+                    <field name="data_vacina"/>
+                    <field name="local_aplicacao"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_vacina_view" model="ir.actions.act_window">
+            <field name="name">Vacina</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">vacina.vacina</field>
+            <field name="view_mode">tree,form,pivot</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Detalhe das vacinas
+                </p>
+                <p>
+                    Clique para adicionar
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="vacina_pivot_view">
+            <field name="name">Vacinas Pivot</field>
+            <field name="model">vacina.vacina</field>
+            <field name="arch" type="xml">
+                <pivot string="Vacinas">
+                    <field name="cliente_id" type="row"/>
+                    <field name="data_vacina" type="col"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="search_vacina" model="ir.ui.view">
+            <field name="name">Vacina</field>
+            <field name="model">vacina.vacina</field>
+            <field name="arch" type="xml">
+                <search string="Vacina">
+                    <field name="cliente_id" string="Cliente"/>
+                    <field name="vacina_id" string="Vacina"/>
+                </search>
+            </field>
+        </record>
+        <!-- This Menu Item will appear in the Upper bar, That's why It needs NO parent or action -->
+        <menuitem id="menu_vacina_root" name="Vacina" sequence="10" web_icon="/home/bruno/PycharmProjects/Odoo_addons/vacina/static/description/icon.png"/>
+        <!-- This Menu Item Must have a parent -->
+        <menuitem id="menu_vacina_categ" name="Vacina" parent="menu_vacina_root" sequence="1"/>
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="menu_vacina__categ" name="Adicionar nova Aplicaçao" parent="menu_vacina_categ"
+                  action="action_vacina_view"
+                  sequence="1"/>
+
+
+    </data>
+</odoo>

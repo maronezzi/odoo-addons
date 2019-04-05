@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vacina_vacina,vacina.vacina,model_vacina_vacina,,1,1,1,1
+access_ciclo_frio,access_ciclo_frio,model_ciclo_frio,,1,1,1,1

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_ciclofrio" model="ir.ui.view">
+            <field name="name">view.ciclofrio</field>
+            <field name="model">ciclo.frio</field>
+            <field name="arch" type="xml">
+                <form string="Registro do Ciclo Frio">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="current_user" style="width: 30%%"/>
+                                <field name="data" style="width: 30%%"/>
+                                <field name="temperatura" style="width: 30%%"/>
+                                <field name="humidade" style="width: 30%%"/>
+                                <field name="condicao_atual" style="width: 30%%"/>
+                            </group>
+                            <group>
+                                <field name="atual" style="width: 30%%"/>
+                                <field name="minima" style="width: 30%%"/>
+                                <field name="maxima" style="width: 30%%"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="observacao"/>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_ciclofrio_tree" model="ir.ui.view">
+            <field name="name">view.ciclofrio.tree</field>
+            <field name="model">ciclo.frio</field>
+            <field name="arch" type="xml">
+
+                <tree default_order='data desc'>
+                    <field name="current_user"/>
+                    <field name="data"/>
+                    <field name="atual"/>
+                    <field name="minima"/>
+                    <field name="maxima"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_ciclofrio_view" model="ir.actions.act_window">
+            <field name="name">Ciclofrio</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ciclo.frio</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Registro do Ciclo Frio
+                </p>
+                <p>
+                    Clique para adicionar
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="ciclofrio_pivot_view">
+            <field name="name">Ciclofrio</field>
+            <field name="model">ciclo.frio</field>
+            <field name="arch" type="xml">
+                <pivot string="Ciclofrio">
+                    <field name="data" type="row"/>
+                    <field name="atual" type="col"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Graph view for question analysis-->
+        <record model="ir.ui.view" id="ciclofrio_report_graph">
+            <field name="name">ciclofrio.report.graph</field>
+            <field name="model">ciclo.frio</field>
+            <field name="arch" type="xml">
+                <graph string="Ciclo Frio">
+                    <field name="data"/>
+                    <field name="atual" type="col"/>
+                </graph>
+            </field>
+        </record>
+
+        <menuitem id="id_ciclofrio" name="Ciclo Frio" parent="menu_vacina_root" sequence="2"/>
+
+        <menuitem id="id_ciclofrio_menu" parent="id_ciclofrio" name="Adicionar nova Leitura"
+                  action="action_ciclofrio_view"/>
+    </data>
+</odoo>
