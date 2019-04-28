@@ -19,16 +19,14 @@ class vacina(models.Model):
     vacina_id = fields.Many2one(comodel_name="product.template", string="Vacina", )
     vacina_ext = fields.Char(string="Vacina Externa",  )
 
-
     cliente_id = fields.Many2one(comodel_name="res.partner", string="Paciente", required=True, )
     aniversario = fields.Char("Idade", related='cliente_id.age')
 
-
     enfermeira_id = fields.Many2one(comodel_name="hr.employee", string="Enfermeira", required=False, )
-    enfermeira_ext = fields.Char(string="Enfermeira", required=False, )
+    enfermeira_ext = fields.Char(string="Enfermeira Ext.", required=False, )
 
     local_aplicacao = fields.Selection(
-        [('sevacine', 'SeVacine'), ('ubs', 'UBS (Unidade Basica de Saude)'), ('particular', 'Particular')],
+        [('sevacine', 'SeVacine'), ('ubs', 'UBS (Un. Básica de Saúde)'), ('particular', 'Particular')],
         string='Onde Foi Aplicada')
     final_lot_id = fields.Many2one(
         'stock.production.lot', 'Lote', domain="[('product_id', '=', vacina_id)]", )
@@ -45,13 +43,13 @@ class CicloFrio(models.Model):
 
     data = fields.Datetime(string="Hora do Registro", required=True, default=datetime.now())
     atual = fields.Float(string="Temperatura Atual", required=True, track_visibility='on_change')
-    minima = fields.Float(string="Temperatura Minima", required=True, track_visibility='on_change')
-    maxima = fields.Float(string="Temperatura Maxima", required=True, track_visibility='on_change')
-    current_user = fields.Many2one('res.users', 'Usuario', default=lambda self: self.env.user, readonly=True)
-    temperatura = fields.Integer(string="Temperatura Belem", required=False)
-    humidade = fields.Integer(string="Umidade Belem", required=False)
-    condicao_atual = fields.Char(string="Condicao do tempo", required=False)
-    observacao = fields.Text(string="Observaçoes", required=False, )
+    minima = fields.Float(string="Temperatura Mínima", required=True, track_visibility='on_change')
+    maxima = fields.Float(string="Temperatura Máxima", required=True, track_visibility='on_change')
+    current_user = fields.Many2one('res.users', 'Usuário', default=lambda self: self.env.user, readonly=True)
+    temperatura = fields.Integer(string="Temperatura Belém", required=False)
+    humidade = fields.Integer(string="Umidade Belém", required=False)
+    condicao_atual = fields.Char(string="Condição do tempo", required=False)
+    observacao = fields.Text(string="Observações", required=False, )
 
     @api.multi
     @api.onchange('atual')
@@ -94,10 +92,10 @@ class BirthDateAge(models.Model):
 
     birthdate = fields.Date(string="Data do Nascimento")
     age = fields.Char(string="Idade")
-    identificacao = fields.Char(string="Cart. de Identificaçao", required=False, )
-    carteira_vacina = fields.Binary(string="Cart. de Vacinaçao", )
+    identificacao = fields.Char(string="Cart. de Identificação", required=False, )
+    carteira_vacina = fields.Binary(string="Cart. de Vacinação", )
 
-    mae = fields.Many2one(comodel_name="res.partner", string="Nome da Mae", required=False, )
+    mae = fields.Many2one(comodel_name="res.partner", string="Nome da Mãe", required=False, )
     pai = fields.Many2one(comodel_name="res.partner", string="Nome do Pai", required=False, )
 
     @api.onchange('birthdate')
@@ -124,7 +122,7 @@ class GestoVacina(models.Model):
     _inherit = "product.template"
 
     gesto_vacinal = fields.Monetary(string="Gesto Vacinal", required=False, track_visibility='on_change')
-    pmc = fields.Monetary(string="Preço Max. Cons.", required=False, track_visibility='on_change')
+    pmc = fields.Monetary(string="Preço Máx. Cons.", required=False, track_visibility='on_change')
 
     @api.multi
     @api.onchange('list_price', 'pmc')

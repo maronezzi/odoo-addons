@@ -9,16 +9,16 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="current_user" style="width: 30%%"/>
-                                <field name="data" style="width: 30%%"/>
-                                <field name="temperatura" style="width: 30%%"/>
-                                <field name="humidade" style="width: 30%%"/>
-                                <field name="condicao_atual" style="width: 30%%"/>
+                                <field name="current_user" style="width: 50%%"/>
+                                <field name="data" style="width: 50%%"/>
+                                <field name="temperatura" style="width: 50%%"/>
+                                <field name="humidade" style="width: 50%%"/>
+                                <field name="condicao_atual" style="width: 50%%"/>
                             </group>
                             <group>
-                                <field name="atual" style="width: 30%%"/>
-                                <field name="minima" style="width: 30%%"/>
-                                <field name="maxima" style="width: 30%%"/>
+                                <field name="atual" style="width: 50%%"/>
+                                <field name="minima" style="width: 50%%"/>
+                                <field name="maxima" style="width: 50%%"/>
                             </group>
                         </group>
                         <group>
