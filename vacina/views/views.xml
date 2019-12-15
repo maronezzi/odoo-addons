@@ -23,7 +23,7 @@
                                 </field>
                                 <field name="final_lot_id" options="{'no_create': True, 'no_open': True}"
                                        attrs="{'invisible': [('local_aplicacao','!=', 'sevacine')], 'required': [('local_aplicacao','=', 'sevacine')]}"/>
-                                <field name="lote_ext" options="{'no_create': True, 'no_open': True}"
+                                <field name="lote_ext" options="{'no_create': True, 'no_open': True}" readonly="1"
                                        attrs="{'invisible': [('local_aplicacao','=', 'sevacine')], 'required': [('local_aplicacao','!=', 'sevacine')]}"/>
                             </group>
                             <group>

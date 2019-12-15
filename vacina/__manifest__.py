@@ -27,7 +27,7 @@
         'security/ir.model.access.csv',
         'views/res_partner_view.xml',
         'views/product_view.xml',
-    #    'views/ciclofrio.xml',
+        'views/ciclofrio.xml',
         'views/views.xml',
         'views/update.xml',
         'views/templates.xml',

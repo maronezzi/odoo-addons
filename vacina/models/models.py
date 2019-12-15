@@ -9,6 +9,12 @@ from urllib.request import urlopen
 from urllib import error
 from bs4 import BeautifulSoup
 
+try:
+    from erpbrasil.base.fiscal import cnpj_cpf, ie
+    from erpbrasil.base import misc
+except ImportError:
+    _logger.error("Biblioteca erpbrasil.base não instalada")
+
 
 class vacina(models.Model):
     _name = 'vacina.vacina'
@@ -28,8 +34,11 @@ class vacina(models.Model):
     local_aplicacao = fields.Selection(
         [('sevacine', 'SeVacine'), ('ubs', 'UBS (Un. Básica de Saúde)'), ('particular', 'Particular')],
         string='Onde Foi Aplicada')
+
     final_lot_id = fields.Many2one(
         'stock.production.lot', 'Lote', domain="[('product_id', '=', vacina_id)]", )
+    # validade = fields.Date(string='Validade', related='final_lot_id.life_date')
+
     lote_ext = fields.Char(string="Lote Externo", )
 
     dose_aplicada = fields.Char(string="Dose Aplicada", required=False, )
@@ -68,6 +77,7 @@ class CicloFrio(models.Model):
             condicao_inmet = soup.tempo_desc.get_text()
             self.condicao_atual = condicao_inmet
 
+
         except error.URLError as e:
             if hasattr(e, 'code'):
                 print(e.code)
@@ -91,12 +101,16 @@ class BirthDateAge(models.Model):
     _inherit = "res.partner"
 
     birthdate = fields.Date(string="Data do Nascimento")
-    age = fields.Char(string="Idade")
-    identificacao = fields.Char(string="Cart. de Identificação", required=False, )
+    age = fields.Char(string="Idade" )
+    identificacao = fields.Char(string="CPF", required=False, )
     carteira_vacina = fields.Binary(string="Cart. de Vacinação", )
 
     mae = fields.Many2one(comodel_name="res.partner", string="Nome da Mãe", required=False, )
     pai = fields.Many2one(comodel_name="res.partner", string="Nome do Pai", required=False, )
+
+    @api.onchange('identificacao')  # if these fields are changed, call method
+    def check_change(self):
+        self.identificacao = cnpj_cpf.formata(str(self.identificacao))
 
     @api.onchange('birthdate')
     def _onchange_birth_date(self):
