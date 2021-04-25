@@ -41,7 +41,11 @@ class vacina(models.Model):
 
     lote_ext = fields.Char(string="Lote Externo", )
 
-    dose_aplicada = fields.Char(string="Dose Aplicada", required=False, )
+    # dose_aplicada = fields.Char(string="Dose Aplicada", required=False, )
+    dose_aplicada = fields.Selection(
+        [('primeira', '1º Dose'), ('segunda', '2º Dose'), ('terceira', '3º Dose'),
+         ('unica', 'Dose Única'), ('reforço', 'Reforço'), ('anual', 'Anual')],
+        string='Dose Aplicada')
     # observacao = fields.Text(string="Observaçes", required=False, )
 
 
