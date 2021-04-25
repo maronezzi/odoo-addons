@@ -109,8 +109,10 @@ class BirthDateAge(models.Model):
     identificacao = fields.Char(string="CPF", required=False, )
     carteira_vacina = fields.Binary(string="Cart. de Vacinação", )
 
+    nfse = fields.Many2one(comodel_name="res.partner", string="NFSe", required=False, )
     mae = fields.Many2one(comodel_name="res.partner", string="Nome da Mãe", required=False, )
     pai = fields.Many2one(comodel_name="res.partner", string="Nome do Pai", required=False, )
+
 
     @api.onchange('identificacao')  # if these fields are changed, call method
     def check_change(self):

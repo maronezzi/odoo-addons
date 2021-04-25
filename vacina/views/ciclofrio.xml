@@ -85,10 +85,10 @@
                 </graph>
             </field>
         </record>
- <!--
+
         <menuitem id="id_ciclofrio" name="Ciclo Frio" parent="menu_vacina_root" sequence="2"/>
 
         <menuitem id="id_ciclofrio_menu" parent="id_ciclofrio" name="Adicionar nova Leitura"
-                  action="action_ciclofrio_view"/>-->
+                  action="action_ciclofrio_view"/>
     </data>
 </odoo>
