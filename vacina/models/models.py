@@ -21,7 +21,7 @@ class vacina(models.Model):
     _description = "Controle de Vacina"
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    data_vacina = fields.Date(required=True, default=lambda self: self._get_current_date())
+    data_vacina = fields.Datetime(required=True, default=lambda self: self._get_current_date())
     vacina_id = fields.Many2one(comodel_name="product.template", string="Vacina", )
     vacina_ext = fields.Char(string="Vacina Externa",  )
 
@@ -46,20 +46,18 @@ class vacina(models.Model):
         [('primeira', '1º Dose'), ('segunda', '2º Dose'), ('terceira', '3º Dose'),
          ('unica', 'Dose Única'), ('reforço', 'Reforço'), ('anual', 'Anual')],
         string='Dose Aplicada')
-    # observacao = fields.Text(string="Observaçes", required=False, )
 
     @api.model
     def _get_current_date(self):
         """ :return current date """
-        return fields.Date.today()
-
+        return fields.Datetime.now()
 
 class CicloFrio(models.Model):
     _name = 'ciclo.frio'
     _description = 'Modulo para Registro do Ciclo Frio'
     _inherit = ['mail.thread']
 
-    data = fields.Datetime(string="Hora do Registro", required=True,)
+    data = fields.Datetime(string="Hora do Registro", required=True, default=datetime.now())
     atual = fields.Float(string="Temperatura Atual", required=True, track_visibility='on_change')
     minima = fields.Float(string="Temperatura Mínima", required=True, track_visibility='on_change')
     maxima = fields.Float(string="Temperatura Máxima", required=True, track_visibility='on_change')
@@ -85,9 +83,6 @@ class CicloFrio(models.Model):
 
             condicao_inmet = soup.tempo_desc.get_text()
             self.condicao_atual = condicao_inmet
-
-            hora_atual = datetime.now()
-            self.data = hora_atual
 
 
         except error.URLError as e:
@@ -117,10 +112,8 @@ class BirthDateAge(models.Model):
     identificacao = fields.Char(string="CPF", required=False, )
     carteira_vacina = fields.Binary(string="Cart. de Vacinação", )
 
-    nfse = fields.Many2one(comodel_name="res.partner", string="NFSe", required=False, )
     mae = fields.Many2one(comodel_name="res.partner", string="Nome da Mãe", required=False, )
     pai = fields.Many2one(comodel_name="res.partner", string="Nome do Pai", required=False, )
-
 
     @api.onchange('identificacao')  # if these fields are changed, call method
     def check_change(self):
@@ -157,4 +150,3 @@ class GestoVacina(models.Model):
     def onchange_calculer(self):
         for s in self:
             s.gesto_vacinal = self.list_price - self.pmc
-
