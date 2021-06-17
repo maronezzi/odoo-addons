@@ -33,6 +33,8 @@ class vacina(models.Model):
     enfermeira_id = fields.Many2one(comodel_name="hr.employee", string="Enfermeira", required=False)
     enfermeira_ext = fields.Char(string="Enfermeira Ext.", required=False, )
 
+    idadevacina = fields.Char(string="Idade dia Vacina")
+
     local_aplicacao = fields.Selection(
         [('sevacine', 'SeVacine'), ('ubs', 'UBS (Un. Básica de Saúde)'), ('particular', 'Particular')],
         string='Onde Foi Aplicada')
@@ -41,7 +43,7 @@ class vacina(models.Model):
         'stock.production.lot', 'Lote', domain="[('product_id', '=', vacina_id)]", )
     # validade = fields.Date(string='Validade', related='final_lot_id.life_date')
 
-    lote_ext = fields.Char(string="Lote Externo", )
+    lote_ext = fields.Char(string="Lote Externo", required=True, )
 
     # dose_aplicada = fields.Char(string="Dose Aplicada", required=False, )
     dose_aplicada = fields.Selection(
@@ -59,6 +61,18 @@ class vacina(models.Model):
     def _get_current_date(self):
         """ :return current date """
         return fields.Datetime.now()
+
+    @api.multi
+    @api.onchange('aplicacao')
+    def idadeaplica(self):
+        if not self.nascimento:
+            return
+
+        d1 = datetime.strptime(str(self.nascimento), "%Y-%m-%d").date()
+        d2 = datetime.strptime(str(self.data_vacina.date()), "%Y-%m-%d").date()
+        self.idadevacina = str(relativedelta(d2, d1).years) + " Anos, " + str(
+            relativedelta(d2, d1).months) + " Meses e " + str(relativedelta(d2, d1).days) + " dias"
+
 
 class CicloFrio(models.Model):
     _name = 'ciclo.frio'
@@ -166,6 +180,8 @@ class GestoVacina(models.Model):
         for s in self:
             s.gesto_vacinal = self.list_price - self.pmc
 
+
+
 class cep(models.Model):
     _inherit = "res.partner"
 
@@ -177,6 +193,7 @@ class cep(models.Model):
             return
 
         zip_str = self.zip.replace('-', '')
+        print(zip_str)
 
         if len(zip_str) == 8:
 
@@ -199,9 +216,6 @@ class cep(models.Model):
                 self.state_id = state_ids.ids[0]
                 self.country_id = country_ids.ids[0]
 
-                print(country_ids.ids[0])
-                print(state_ids.ids[0])
-
 
 class cep(models.Model):
     _inherit = "res.partner"
@@ -209,15 +223,16 @@ class cep(models.Model):
     @api.multi
     @api.onchange('street', 'street2', 'city')  # if these fields are changed, call method
     def uf_country(self):
-        # Search Brazil id
-        country_ids = self.env['res.country'].search(
-            [('code', '=', 'BR')])
+        if not self.zip:
+            # Search Brazil id
+            country_ids = self.env['res.country'].search(
+                [('code', '=', 'BR')])
 
-        # Search state with state_code and country id
-        state_ids = self.env['res.country.state'].search([
-            ('code', '=', "PA"),
-            ('country_id.id', 'in', country_ids.ids)])
+            # Search state with state_code and country id
+            state_ids = self.env['res.country.state'].search([
+                ('code', '=', "PA"),
+                ('country_id.id', 'in', country_ids.ids)])
 
-        self.state_id = state_ids.ids[0]
-        self.country_id = country_ids.ids[0]
-        self.city = "Belém"
+            self.state_id = state_ids.ids[0]
+            self.country_id = country_ids.ids[0]
+            self.city = "Belém"
