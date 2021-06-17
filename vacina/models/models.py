@@ -6,6 +6,7 @@ from odoo import models, fields, api
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from urllib.request import urlopen
+import urllib.request, json
 from urllib import error
 from bs4 import BeautifulSoup
 
@@ -27,8 +28,9 @@ class vacina(models.Model):
 
     cliente_id = fields.Many2one(comodel_name="res.partner", string="Paciente", required=True, )
     aniversario = fields.Char("Idade", related='cliente_id.age')
+    nascimento = fields.Date("nascimento", related='cliente_id.birthdate')
 
-    enfermeira_id = fields.Many2one(comodel_name="hr.employee", string="Enfermeira", required=False, )
+    enfermeira_id = fields.Many2one(comodel_name="hr.employee", string="Enfermeira", required=False)
     enfermeira_ext = fields.Char(string="Enfermeira Ext.", required=False, )
 
     local_aplicacao = fields.Selection(
@@ -47,6 +49,12 @@ class vacina(models.Model):
          ('unica', 'Dose Única'), ('reforço', 'Reforço'), ('anual', 'Anual')],
         string='Dose Aplicada')
 
+    aplicacao = fields.Selection(
+        [('pernadireita', 'Perna Direita'), ('pernaesq', 'Perna Esquerda'),
+         ('bracodireito', 'Braço Direito'), ('bracoesquerdo', 'Braço Esquerdo'),
+         ],
+        string='Local da Aplicação')
+
     @api.model
     def _get_current_date(self):
         """ :return current date """
@@ -57,16 +65,20 @@ class CicloFrio(models.Model):
     _description = 'Modulo para Registro do Ciclo Frio'
     _inherit = ['mail.thread']
 
-    data = fields.Datetime(string="Hora do Registro", required=True, default=datetime.now())
-    atual = fields.Float(string="Temperatura Atual", required=True, track_visibility='on_change')
-    minima = fields.Float(string="Temperatura Mínima", required=True, track_visibility='on_change')
-    maxima = fields.Float(string="Temperatura Máxima", required=True, track_visibility='on_change')
+    data = fields.Datetime(string="Hora do Registro", required=True, default=lambda self: self._get_current_date())
+    atual = fields.Float(string="Temperatura Atual", required=True,)
+    minima = fields.Float(string="Temperatura Mínima", required=True, )
+    maxima = fields.Float(string="Temperatura Máxima", required=True, )
     current_user = fields.Many2one('res.users', 'Usuário', default=lambda self: self.env.user, readonly=True)
-    temperatura = fields.Integer(string="Temperatura Belém", required=False)
-    humidade = fields.Integer(string="Umidade Belém", required=False)
-    condicao_atual = fields.Char(string="Condição do tempo", required=False)
-    observacao = fields.Text(string="Observações", required=False, )
+    temperatura = fields.Char(string="Temperatura Belém")
+    humidade = fields.Char(string="Umidade Belém")
+    condicao_atual = fields.Char(string="Condição do tempo", )
+    observacao = fields.Text(string="Observações", )
 
+    refrigerador = fields.Selection(
+        [('refrigerador_1', 'Refrigerador 1'), ('refrigerador_2', 'Refrigerador 2'),
+         ],
+        string='Refrigerador', required=True)
     @api.multi
     @api.onchange('atual')
     def temp(self):
@@ -76,10 +88,10 @@ class CicloFrio(models.Model):
 
             # print("Atualizacao: %s" % soup.atualizacao.get_text())
             temp_inmet = soup.temperatura.get_text()
-            self.temperatura = temp_inmet
+            self.temperatura = temp_inmet + "ºC"
 
             umid_inmet = soup.umidade.get_text()
-            self.humidade = umid_inmet
+            self.humidade = umid_inmet + "%"
 
             condicao_inmet = soup.tempo_desc.get_text()
             self.condicao_atual = condicao_inmet
@@ -102,7 +114,10 @@ class CicloFrio(models.Model):
             self.temperatura = 0
             self.humidade = 0
             self.condicao_atual = "Sem acesso a Internet"
-
+    @api.model
+    def _get_current_date(self):
+        """ :return current date """
+        return fields.Datetime.now()
 
 class BirthDateAge(models.Model):
     _inherit = "res.partner"
@@ -150,3 +165,33 @@ class GestoVacina(models.Model):
     def onchange_calculer(self):
         for s in self:
             s.gesto_vacinal = self.list_price - self.pmc
+
+class cep(models.Model):
+    _inherit = "res.partner"
+
+    @api.multi
+    @api.onchange('zip', 'city')  # if these fields are changed, call method
+    def on_change_state(self):
+        zip_str = self.zip.replace('-', '')
+
+        if len(zip_str) == 8:
+
+            with urllib.request.urlopen("https://viacep.com.br/ws/"+zip_str+"/json/") as url:
+                data = json.loads(url.read().decode())
+
+                self.city = data['localidade']
+                self.street = data['logradouro']
+                self.street2 = data['bairro']
+
+                # Search Brazil id
+                country_ids = self.env['res.country'].search(
+                    [('code', '=', 'BR')])
+
+                # Search state with state_code and country id
+                state_ids = self.env['res.country.state'].search([
+                    ('code', '=', str(data['uf'])),
+                    ('country_id.id', 'in', country_ids.ids)])
+
+                self.state_id = state_ids.ids[0]
+                self.country_id = country_ids.ids[0]
+
