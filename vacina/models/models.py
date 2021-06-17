@@ -172,6 +172,10 @@ class cep(models.Model):
     @api.multi
     @api.onchange('zip', 'city')  # if these fields are changed, call method
     def on_change_state(self):
+
+        if not self.zip:
+            return
+
         zip_str = self.zip.replace('-', '')
 
         if len(zip_str) == 8:
@@ -195,3 +199,25 @@ class cep(models.Model):
                 self.state_id = state_ids.ids[0]
                 self.country_id = country_ids.ids[0]
 
+                print(country_ids.ids[0])
+                print(state_ids.ids[0])
+
+
+class cep(models.Model):
+    _inherit = "res.partner"
+
+    @api.multi
+    @api.onchange('street', 'street2', 'city')  # if these fields are changed, call method
+    def uf_country(self):
+        # Search Brazil id
+        country_ids = self.env['res.country'].search(
+            [('code', '=', 'BR')])
+
+        # Search state with state_code and country id
+        state_ids = self.env['res.country.state'].search([
+            ('code', '=', "PA"),
+            ('country_id.id', 'in', country_ids.ids)])
+
+        self.state_id = state_ids.ids[0]
+        self.country_id = country_ids.ids[0]
+        self.city = "Belém"
