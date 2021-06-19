@@ -31,7 +31,7 @@
                             <group>
                                 <field name="aniversario"/>
                                 <field name="data_vacina"/>
-                                <field name="idadevacina" options="{'no_create': True, 'no_open': True}" readonly="0"/>
+                                <field name="idadevacina" readonly="1" force_save="1"/>
                                 <field name="enfermeira_id" options="{'no_create': True, 'no_open': True}"
                                        attrs="{'invisible': [('local_aplicacao','!=', 'sevacine')], 'required': [('local_aplicacao','=', 'sevacine')]}"/>
                                 <field name="enfermeira_ext" options="{'no_create': True, 'no_open': True}"

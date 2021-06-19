@@ -11,9 +11,9 @@
                             <group>
                                 <field name="current_user" style="width: 50%%"/>
                                 <field name="data" style="width: 50%%"/>
-                                <field name="temperatura" style="width: 50%%"/>
-                                <field name="humidade" style="width: 50%%"/>
-                                <field name="condicao_atual" style="width: 50%%"/>
+                                <field name="temperatura" readonly="1" force_save="1"/>
+                                <field name="humidade" readonly="1" force_save="1"/>
+                                <field name="condicao_atual" readonly="1" force_save="1"/>
                             </group>
                             <group>
                                 <field name="refrigerador" style="width: 50%%"/>
@@ -76,7 +76,6 @@
             </field>
         </record>
 
-        <!-- Graph view for question analysis-->
         <record model="ir.ui.view" id="ciclofrio_report_graph">
             <field name="name">ciclofrio.report.graph</field>
             <field name="model">ciclo.frio</field>
@@ -87,7 +86,7 @@
                 </graph>
             </field>
         </record>
-        <menuitem id="id_ciclofrio" name="Ciclo Frio" parent="menu_vacina_root" sequence="2"/>
+         <menuitem id="id_ciclofrio" name="Ciclo Frio" parent="menu_vacina_root" sequence="2"/>
 
         <menuitem id="id_ciclofrio_menu" parent="id_ciclofrio" name="Adicionar nova Leitura"
                   action="action_ciclofrio_view"/>

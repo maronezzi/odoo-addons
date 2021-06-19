@@ -33,11 +33,11 @@ class vacina(models.Model):
     enfermeira_id = fields.Many2one(comodel_name="hr.employee", string="Enfermeira", required=False)
     enfermeira_ext = fields.Char(string="Enfermeira Ext.", required=False, )
 
-    idadevacina = fields.Char(string="Idade dia Vacina")
+    idadevacina = fields.Char(string="Idade no dia Vacina")
 
     local_aplicacao = fields.Selection(
         [('sevacine', 'SeVacine'), ('ubs', 'UBS (Un. Básica de Saúde)'), ('particular', 'Particular')],
-        string='Onde Foi Aplicada')
+        string='Onde Foi Aplicada', default='sevacine')
 
     final_lot_id = fields.Many2one(
         'stock.production.lot', 'Lote', domain="[('product_id', '=', vacina_id)]", )
@@ -49,7 +49,7 @@ class vacina(models.Model):
     dose_aplicada = fields.Selection(
         [('primeira', '1º Dose'), ('segunda', '2º Dose'), ('terceira', '3º Dose'),
          ('unica', 'Dose Única'), ('reforço', 'Reforço'), ('anual', 'Anual')],
-        string='Dose Aplicada')
+        string='Dose Aplicada', required=True)
 
     aplicacao = fields.Selection(
         [('pernadireita', 'Perna Direita'), ('pernaesq', 'Perna Esquerda'),
@@ -63,7 +63,7 @@ class vacina(models.Model):
         return fields.Datetime.now()
 
     @api.multi
-    @api.onchange('aplicacao')
+    @api.onchange('aniversario')
     def idadeaplica(self):
         if not self.nascimento:
             return
@@ -80,9 +80,9 @@ class CicloFrio(models.Model):
     _inherit = ['mail.thread']
 
     data = fields.Datetime(string="Hora do Registro", required=True, default=lambda self: self._get_current_date())
-    atual = fields.Float(string="Temperatura Atual", required=True,)
-    minima = fields.Float(string="Temperatura Mínima", required=True, )
-    maxima = fields.Float(string="Temperatura Máxima", required=True, )
+    atual = fields.Float(string="Temperatura Atual", required=True, default="")
+    minima = fields.Float(string="Temperatura Mínima", required=True, default="")
+    maxima = fields.Float(string="Temperatura Máxima", required=True, default="")
     current_user = fields.Many2one('res.users', 'Usuário', default=lambda self: self.env.user, readonly=True)
     temperatura = fields.Char(string="Temperatura Belém")
     humidade = fields.Char(string="Umidade Belém")
@@ -108,7 +108,7 @@ class CicloFrio(models.Model):
             self.humidade = umid_inmet + "%"
 
             condicao_inmet = soup.tempo_desc.get_text()
-            self.condicao_atual = condicao_inmet
+            self.condicao_atual = condicao_inmet.encode('utf-8')
 
 
         except error.URLError as e:
@@ -120,14 +120,6 @@ class CicloFrio(models.Model):
             self.humidade = 0
             self.condicao_atual = "Sem acesso a Internet"
 
-        except error.HTTPError as e:
-            if hasattr(e, 'code'):
-                print(e.code)
-            if hasattr(e, 'reason'):
-                print(e.reason)
-            self.temperatura = 0
-            self.humidade = 0
-            self.condicao_atual = "Sem acesso a Internet"
     @api.model
     def _get_current_date(self):
         """ :return current date """
@@ -193,30 +185,41 @@ class cep(models.Model):
             return
 
         zip_str = self.zip.replace('-', '')
-        print(zip_str)
 
         if len(zip_str) == 8:
+            try:
+                with urllib.request.urlopen("https://viacep.com.br/ws/"+zip_str+"/json/") as url:
+                    data = json.loads(url.read().decode())
 
-            with urllib.request.urlopen("https://viacep.com.br/ws/"+zip_str+"/json/") as url:
-                data = json.loads(url.read().decode())
+                    if 'erro' in data:
+                        self.street = 'Cep não encontrado'
+                        self.street2 = ''
+                        self.city = ''
+                        return
 
-                self.city = data['localidade']
-                self.street = data['logradouro']
-                self.street2 = data['bairro']
+                    if 'cep' in data:
+                        self.city = data['localidade']
+                        self.street = data['logradouro']
+                        self.street2 = data['bairro']
 
-                # Search Brazil id
-                country_ids = self.env['res.country'].search(
-                    [('code', '=', 'BR')])
+                        # Search Brazil id
+                        country_ids = self.env['res.country'].search(
+                            [('code', '=', 'BR')])
 
-                # Search state with state_code and country id
-                state_ids = self.env['res.country.state'].search([
-                    ('code', '=', str(data['uf'])),
-                    ('country_id.id', 'in', country_ids.ids)])
+                        # Search state with state_code and country id
+                        state_ids = self.env['res.country.state'].search([
+                            ('code', '=', str(data['uf'])),
+                            ('country_id.id', 'in', country_ids.ids)])
 
-                self.state_id = state_ids.ids[0]
-                self.country_id = country_ids.ids[0]
+                        self.state_id = state_ids.ids[0]
+                        self.country_id = country_ids.ids[0]
 
-
+            except error.URLError as e:
+                if hasattr(e, 'code'):
+                    print(e.code)
+                if hasattr(e, 'reason'):
+                    print(e.reason)
+                self.street = 'Sistema de CEP fora do ar'
 class cep(models.Model):
     _inherit = "res.partner"
 
